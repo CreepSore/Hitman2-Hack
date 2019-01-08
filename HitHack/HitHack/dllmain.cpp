@@ -16,6 +16,7 @@ BOOL __stdcall StartThread(LPVOID hModule) {
 	InitConsole();
 
 	Beep(250, 500);
+	FreeLibraryAndExitThread((HMODULE)hModule, 0);
 	return TRUE;
 }
 
