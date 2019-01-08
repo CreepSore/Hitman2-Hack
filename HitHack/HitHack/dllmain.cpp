@@ -1,5 +1,6 @@
 // dllmain.cpp : Definiert den Einstiegspunkt für die DLL-Anwendung.
 #include "stdafx.h"
+#include "Vectors.h"
 #include <stdio.h>
 #include <iostream>
 
@@ -13,7 +14,6 @@ void InitConsole() {
 BOOL __stdcall StartThread(LPVOID hModule) {
 	Beep(500, 500);
 	InitConsole();
-
 
 	Beep(250, 500);
 	return TRUE;
