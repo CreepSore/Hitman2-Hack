@@ -3,8 +3,7 @@
 #define PATCHTYPE_ADDRESS 0x0
 #define PATCHTYPE_PATTERN 0x1
 
-class PatchInfo
-{
+class PatchInfo {
 private:
     bool patchPattern();
     bool patchAddress();

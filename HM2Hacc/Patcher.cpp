@@ -3,97 +3,50 @@
 #include "SignatureScanning.h"
 #include <iostream>
 
-PatchInfo::PatchInfo(const DWORD64 address, const char* toWrite, const char* name)
-{
+PatchInfo::PatchInfo(const DWORD64 address, const char* toWrite, const char* name) {
     this->type = PATCHTYPE_ADDRESS;
     this->address = address;
     this->toWrite = new char[255];
     this->name = new char[255];
-    memcpy(this->name, name, strlen(name) + 1);
 
-    for (int i = 0; i < strlen(toWrite); i++)
-    {
-        this->toWrite[i] = toWrite[i];
-    }
+    this->oldBytes = nullptr;
+    this->module = nullptr;
+    this->pattern = nullptr;
+    this->mask = nullptr;
+
+    memcpy(this->name, name, strlen(name) + 1);
+    memcpy(this->toWrite, toWrite, strlen(toWrite) + 1);
 }
 
-PatchInfo::PatchInfo(const char* module, const char* pattern, const char* mask, const char* toWrite, const char* name)
-{
+PatchInfo::PatchInfo(const char* module, const char* pattern, const char* mask, const char* toWrite, const char* name) {
     this->type = PATCHTYPE_PATTERN;
     this->address = 0;
 
-    this->module = new char[strlen(module)+1];
-    this->pattern = new char[strlen(mask)+1];
-    this->mask = new char[strlen(mask)+1];
-    this->toWrite = new char[strlen(toWrite)+1];
+    this->module = new char[strlen(module) + 1];
+    this->pattern = new char[strlen(mask) + 1];
+    this->mask = new char[strlen(mask) + 1];
+    this->toWrite = new char[strlen(toWrite) + 1];
     this->name = new char[255];
+
+    this->oldBytes = nullptr;
+
     memcpy(this->name, name, strlen(name) + 1);
-
-
-    size_t len = strlen(module);
-    for (size_t i = 0; i < len + 1; i++)
-    {
-        if (i == len)
-        {
-            this->module[i] = '\0';
-        }
-        else
-        {
-            this->module[i] = module[i];
-        }
-    }
-
-    len = strlen(mask);
-    for (size_t i = 0; i < len + 1; i++)
-    {
-        if (i == len)
-        {
-            this->pattern[i] = '\0';
-        }
-        else
-        {
-            this->pattern[i] = pattern[i];
-        }
-    }
-
-    len = strlen(mask);
-    for (size_t i = 0; i < len + 1; i++)
-    {
-        if (i == len)
-        {
-            this->mask[i] = '\0';
-        }
-        else
-        {
-            this->mask[i] = mask[i];
-        }
-    }
-
-    len = strlen(toWrite);
-    for (size_t i = 0; i < len + 1; i++)
-    {
-        if (i == len)
-        {
-            this->toWrite[i] = '\0';
-        }
-        else
-        {
-            this->toWrite[i] = toWrite[i];
-        }
-    }
+    memcpy(this->module, module, strlen(module) + 1);
+    memcpy(this->pattern, pattern, strlen(mask) + 1);
+    memcpy(this->mask, mask, strlen(mask) + 1);
+    memcpy(this->toWrite, toWrite, strlen(toWrite) + 1);
 }
 
-bool PatchInfo::patchPattern()
-{
-    if (this->prefetchAddress()) {
+bool PatchInfo::patchPattern() {
+    if (this->prefetchAddress())
+    {
         return this->patchAddress();
     }
 
     return false;
 }
 
-bool PatchInfo::patchAddress()
-{
+bool PatchInfo::patchAddress() {
     if (this->address == 0) return false;
 
     SIZE_T len = strlen(this->toWrite);
@@ -115,8 +68,7 @@ bool PatchInfo::patchAddress()
     return true;
 }
 
-bool PatchInfo::prefetchAddress()
-{
+bool PatchInfo::prefetchAddress() {
     this->type = PATCHTYPE_ADDRESS;
     this->address = SigScanner::findPattern(this->module, this->pattern, this->mask);
     if (this->address == 0)
@@ -127,21 +79,18 @@ bool PatchInfo::prefetchAddress()
     return true;
 }
 
-bool PatchInfo::patch()
-{
+bool PatchInfo::patch() {
     if (patched) return false;
 
     bool success = false;
     switch (this->type)
     {
-    case PATCHTYPE_ADDRESS:
-    {
+    case PATCHTYPE_ADDRESS: {
         success = this->patchAddress();
         break;
     }
 
-    case PATCHTYPE_PATTERN:
-    {
+    case PATCHTYPE_PATTERN: {
         success = this->patchPattern();
         break;
     }
@@ -151,8 +100,7 @@ bool PatchInfo::patch()
     return this->patched = success;
 }
 
-bool PatchInfo::unpatch()
-{
+bool PatchInfo::unpatch() {
     if (!this->patched) return false;
 
     const SIZE_T len = strlen(this->toWrite);

@@ -5,14 +5,14 @@
 
 DWORD64 SigScanner::findPattern(const DWORD64 addrFrom, const DWORD64 addrTo, const char* pattern, const char* mask)
 {
-    const int patternLength = strlen(mask);
+    const size_t patternLength = strlen(mask);
     if (patternLength == 0) return 0;
 
     for (DWORD64 i = addrFrom; i < addrTo; i++)
     {
         char* current = reinterpret_cast<char*>(i);
         bool patternFailed = false;
-        for (int pOff = 0; pOff < patternLength; pOff++)
+        for (size_t pOff = 0; pOff < patternLength; pOff++)
         {
             if (mask[pOff] == '?' || pattern[pOff] == current[pOff])
             {

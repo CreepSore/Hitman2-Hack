@@ -1,10 +1,8 @@
 #include "stdafx.h"
 #include "Hacks.h"
-#include "SignatureScanning.h"
 #include "Patcher.h"
 #include <Windows.h>
 #include <iostream>
-#include <string>
 #include <experimental/filesystem>
 
 PatchInfo pInfiniteAmmo = PatchInfo("hitman2.exe",
@@ -52,15 +50,13 @@ PatchInfo pPhysXNoFalling = PatchInfo("PhysX3CharacterKinematic_x64.dll",
 std::vector<PatchInfo*> patches = std::vector<PatchInfo*>();
 
 vec3d* getPosition() {
-    DWORD64 base = DWORD64(GetModuleHandleA("hitman2.exe"));
-    DWORD64 curraddr = *PDWORD64(base + 0x2BD6A38);
+    auto currAddr = PDWORD64(DWORD64(GetModuleHandleA("hitman2.exe")) + 0x2BD6A38);
 
-    if (curraddr == 0) return nullptr;
+    if (!currAddr || currAddr == nullptr || *currAddr == 0) return nullptr;
+    currAddr = PDWORD64(*currAddr + 0x20);
+    if (!currAddr || currAddr == nullptr || *currAddr == 0) return nullptr;
 
-    PDWORD64 p1 = PDWORD64(curraddr + 0x20);
-    if (!p1 || p1 == nullptr || *p1 == 0) return nullptr;
-
-    return reinterpret_cast<vec3d*>(*p1 + 0x218);
+    return reinterpret_cast<vec3d*>(*currAddr + 0x218);
 }
 
 void Hooks::init()
@@ -95,8 +91,8 @@ void Hooks::unhook() {
 }
 
 
-vec3d Jump::latestPos = vec3d();
-void Jump::run() {
+vec3d Keybinds::latestPos = vec3d();
+void Keybinds::run() {
     if (GetAsyncKeyState(VK_NUMPAD7) & 1)
     {
         if (pFreezeBots.patched) {
@@ -145,10 +141,10 @@ void Jump::run() {
         if (!pPhysXNoFalling.patched) {
             pPhysXNoFalling.patch();
         }
-        pos->z = Jump::latestPos.z + 5;
-        //jumpstep = 1;
+        pos->z = Keybinds::latestPos.z + 5;
         return;
-    } else {
+    }
+    else {
         if (pPhysXNoFalling.patched)
         {
             pPhysXNoFalling.unpatch();
@@ -157,7 +153,7 @@ void Jump::run() {
     }
 
     if (GetAsyncKeyState(VK_BACK)) {
-        pos->z = Jump::latestPos.z - 5;
+        pos->z = Keybinds::latestPos.z - 5;
         return;
     }
 
@@ -187,24 +183,5 @@ void Jump::run() {
         return;
     }
 
-    if (jumpstep != -1) {
-        if (GetTickCount64() - lastJumpUpdate > 25) {
-            latestPos.z += jumpstep;
-            jumpstep -= 0.05f;
-
-            if (latestPos.z < 0) {
-                latestPos.z = 0;
-                jumpstep = -1;
-            }
-
-            lastJumpUpdate = GetTickCount64();
-        }
-        else
-        {
-            pos->z = latestPos.z;
-        }
-        return;
-    }
-
-    Jump::latestPos = *pos;
+    Keybinds::latestPos = *pos;
 }
