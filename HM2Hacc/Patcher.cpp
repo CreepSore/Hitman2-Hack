@@ -3,18 +3,21 @@
 #include "SignatureScanning.h"
 #include <iostream>
 
-PatchInfo::PatchInfo(const DWORD64 address, const char* toWrite)
+PatchInfo::PatchInfo(const DWORD64 address, const char* toWrite, const char* name)
 {
     this->type = PATCHTYPE_ADDRESS;
     this->address = address;
     this->toWrite = new char[255];
+    this->name = new char[255];
+    memcpy(this->name, name, strlen(name) + 1);
+
     for (int i = 0; i < strlen(toWrite); i++)
     {
         this->toWrite[i] = toWrite[i];
     }
 }
 
-PatchInfo::PatchInfo(const char* module, const char* pattern, const char* mask, const char* toWrite)
+PatchInfo::PatchInfo(const char* module, const char* pattern, const char* mask, const char* toWrite, const char* name)
 {
     this->type = PATCHTYPE_PATTERN;
     this->address = 0;
@@ -23,6 +26,9 @@ PatchInfo::PatchInfo(const char* module, const char* pattern, const char* mask, 
     this->pattern = new char[strlen(mask)+1];
     this->mask = new char[strlen(mask)+1];
     this->toWrite = new char[strlen(toWrite)+1];
+    this->name = new char[255];
+    memcpy(this->name, name, strlen(name) + 1);
+
 
     size_t len = strlen(module);
     for (size_t i = 0; i < len + 1; i++)
@@ -79,13 +85,11 @@ PatchInfo::PatchInfo(const char* module, const char* pattern, const char* mask, 
 
 bool PatchInfo::patchPattern()
 {
-    this->address = SigScanner::findPattern(this->module, this->pattern, this->mask);
-    if (this->address == 0)
-    {
-        std::cout << "Couldn't find Signature for pattern with mask [" << this->mask << "]";
-        return false;
+    if (this->prefetchAddress()) {
+        return this->patchAddress();
     }
-    return this->patchAddress();
+
+    return false;
 }
 
 bool PatchInfo::patchAddress()
@@ -108,6 +112,18 @@ bool PatchInfo::patchAddress()
     }
     VirtualProtect(LPVOID(this->address), len, oldProt, &oldProt);
 
+    return true;
+}
+
+bool PatchInfo::prefetchAddress()
+{
+    this->type = PATCHTYPE_ADDRESS;
+    this->address = SigScanner::findPattern(this->module, this->pattern, this->mask);
+    if (this->address == 0)
+    {
+        std::cout << "Couldn't find Signature for pattern with mask [" << this->mask << "]";
+        return false;
+    }
     return true;
 }
 
@@ -148,5 +164,6 @@ bool PatchInfo::unpatch()
     }
     VirtualProtect(LPVOID(this->address), len, oldProt, &oldProt);
 
+    this->patched = false;
     return true;
 }

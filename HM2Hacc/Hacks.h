@@ -8,6 +8,7 @@ static float jumpstep = -1;
 static long lastJumpUpdate = 0;
 
 struct Hooks {
+    static void init();
     static void hook();
     static void unhook();
 };

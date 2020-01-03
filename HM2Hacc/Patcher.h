@@ -16,10 +16,12 @@ public:
     char* pattern;
     char* mask;
     char* module;
+    char* name;
     char* toWrite;
+    bool prefetchAddress();
     bool patch();
     bool unpatch();
 
-    PatchInfo(DWORD64 address, const char* toWrite);
-    PatchInfo(const char* module, const char* pattern, const char* mask, const char* toWrite);
+    PatchInfo(DWORD64 address, const char* toWrite, const char* name);
+    PatchInfo(const char* module, const char* pattern, const char* mask, const char* toWrite, const char* name);
 };

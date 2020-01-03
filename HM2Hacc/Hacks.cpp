@@ -10,12 +10,46 @@
 PatchInfo pInfiniteAmmo = PatchInfo("hitman2.exe",
     "\xff\x90\x00\x00\x00\x00\x83\xbb\x00\x00\x00\x00\x00\x76",
     "xx????xx?????x",
-    "\x90\x90\x90\x90\x90\x90");
+    "\x90\x90\x90\x90\x90\x90",
+    "INFINITE_AMMO");
 
 PatchInfo pAutoPistol = PatchInfo("hitman2.exe",
     "\xff\x83\x00\x00\x00\x00\x33\xd2\x48\x8b\x07",
     "xx????xxxxx",
-    "\x90\x90\x90\x90\x90\x90");
+    "\x90\x90\x90\x90\x90\x90",
+    "AUTO_PISTOL");
+
+PatchInfo pAntiBotAwareness = PatchInfo("hitman2.exe",
+    "\xe8\x00\x00\x00\x00\x8b\xd6\x49\x8b\xcd",
+    "x????xxxxx",
+    "\x90\x90\x90\x90\x90",
+    "BOT_AWARENESS");
+
+PatchInfo pNoBotActions = PatchInfo("hitman2.exe",
+    "\xe8\x00\x00\x00\x00\x48\x8d\x55\x00\x48\x8b\xcf\xe8\x00\x00\x00\x00\x48\x83\xc3",
+    "x????xxx?xxxx????xxx",
+    "\x90\x90\x90\x90\x90",
+    "BOT_ACTIONS");
+
+PatchInfo pFreezeBots = PatchInfo("hitman2.exe",
+    "\xe8\x00\x00\x00\x00\x80\xbb\x00\x00\x00\x00\x00\x75\x00\x48\x8d\x8b",
+    "x????xx?????x?xxx",
+    "\x90\x90\x90\x90\x90",
+    "FREEZE_BOTS");
+
+PatchInfo pFreezeBotAnimation = PatchInfo("hitman2.exe",
+    "\xe8\x00\x00\x00\x00\x8b\x83\x00\x00\x00\x00\x48\x8d\x93\x00\x00\x00\x00\x48\x89\x54\x24",
+    "x????xx????xxx????xxxx",
+    "\x90\x90\x90\x90\x90",
+    "FREEZE_BOT_ANIMATION");
+
+PatchInfo pPhysXNoFalling = PatchInfo("PhysX3CharacterKinematic_x64.dll",
+    "\xf2\x0f\x11\x8e",
+    "xxxx",
+    "\x90\x90\x90\x90\x90\x90\x90\x90",
+    "PHYSX_NO_FALL");
+
+std::vector<PatchInfo*> patches = std::vector<PatchInfo*>();
 
 vec3d* getPosition() {
     DWORD64 base = DWORD64(GetModuleHandleA("hitman2.exe"));
@@ -29,38 +63,97 @@ vec3d* getPosition() {
     return reinterpret_cast<vec3d*>(*p1 + 0x218);
 }
 
+void Hooks::init()
+{
+    patches.push_back(&pInfiniteAmmo);
+    patches.push_back(&pAutoPistol);
+    patches.push_back(&pAntiBotAwareness);
+    patches.push_back(&pNoBotActions);
+    patches.push_back(&pFreezeBots);
+    patches.push_back(&pFreezeBotAnimation);
+}
+
 void Hooks::hook() {
-    // Infinite Ammo
-    if(pInfiniteAmmo.patch())
+    for (PatchInfo* patch : patches)
     {
-        std::cout << "Hooked infinite Ammo: 0x" << std::hex << pInfiniteAmmo.address << std::dec << std::endl;
+        patch->prefetchAddress();
+        pPhysXNoFalling.prefetchAddress();
     }
 
-    // Auto Pistol
-    if(pAutoPistol.patch())
+    for (PatchInfo* patch : patches)
     {
-        std::cout << "Hooked Auto Pistol: 0x" << std::hex << pAutoPistol.address << std::dec << std::endl;
+        if (patch->patch())
+            std::cout << "Hooked " << patch->name << ": 0x" << std::hex << patch->address << std::dec << std::endl;
     }
 }
 
 void Hooks::unhook() {
-    // Infinite Ammo
-    pInfiniteAmmo.unpatch();
-
-    // Auto Pistol
-    pAutoPistol.unpatch();
+    for (PatchInfo* patch : patches)
+    {
+        patch->unpatch();
+    }
 }
 
 
 vec3d Jump::latestPos = vec3d();
 void Jump::run() {
+    if (GetAsyncKeyState(VK_NUMPAD7) & 1)
+    {
+        if (pFreezeBots.patched) {
+            pFreezeBots.unpatch();
+            pFreezeBotAnimation.unpatch();
+            std::cout << "Unfreezed Bots" << std::endl;
+        }
+        else
+        {
+            pFreezeBots.patch();
+            pFreezeBotAnimation.patch();
+            std::cout << "Freezed Bots" << std::endl;
+        }
+    }
+
+    if (GetAsyncKeyState(VK_NUMPAD9) & 1)
+    {
+        if (pNoBotActions.patched) {
+            pNoBotActions.unpatch();
+            std::cout << "Enabled Bot Actions" << std::endl;
+        }
+        else
+        {
+            pNoBotActions.patch();
+            std::cout << "Disabled Bot Actions" << std::endl;
+        }
+    }
+
+    if (GetAsyncKeyState(VK_NUMPAD1) & 1)
+    {
+        if (pAntiBotAwareness.patched) {
+            pAntiBotAwareness.unpatch();
+            std::cout << "Enabled Bot Awareness" << std::endl;
+        }
+        else
+        {
+            pAntiBotAwareness.patch();
+            std::cout << "Disabled Bot Awareness" << std::endl;
+        }
+    }
+
     vec3d* pos = getPosition();
     if (!pos || pos == nullptr) return;
 
     if (GetAsyncKeyState(VK_LMENU)) {
+        if (!pPhysXNoFalling.patched) {
+            pPhysXNoFalling.patch();
+        }
         pos->z = Jump::latestPos.z + 5;
         //jumpstep = 1;
         return;
+    } else {
+        if (pPhysXNoFalling.patched)
+        {
+            pPhysXNoFalling.unpatch();
+            return;
+        }
     }
 
     if (GetAsyncKeyState(VK_BACK)) {
@@ -93,8 +186,6 @@ void Jump::run() {
         pos->x = latestPos.x - 5;
         return;
     }
-
-
 
     if (jumpstep != -1) {
         if (GetTickCount64() - lastJumpUpdate > 25) {
