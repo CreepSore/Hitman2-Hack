@@ -17,6 +17,12 @@ PatchInfo pAutoPistol = PatchInfo("hitman2.exe",
     "\x90\x90\x90\x90\x90\x90",
     "AUTO_PISTOL");
 
+PatchInfo pNoSpread = PatchInfo("hitman2.exe",
+    "\xf3\x0f\x59\x87\x00\x00\x00\x00\xf3\x0f\x58\xc6",
+    "xxxx????xxxx",
+    "\xF3\x41\x0F\x59\xC7\x90\x90\x90\x90\x90\x90\x90",
+    "NO_SPREAD");
+
 PatchInfo pAntiBotAwareness = PatchInfo("hitman2.exe",
     "\xe8\x00\x00\x00\x00\x8b\xd6\x49\x8b\xcd",
     "x????xxxxx",
@@ -63,6 +69,7 @@ void Hooks::init()
 {
     patches.push_back(&pInfiniteAmmo);
     patches.push_back(&pAutoPistol);
+    patches.push_back(&pNoSpread);
     patches.push_back(&pAntiBotAwareness);
     patches.push_back(&pNoBotActions);
     patches.push_back(&pFreezeBots);
