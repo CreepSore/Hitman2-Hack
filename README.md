@@ -6,7 +6,7 @@
 > **Every** Module also works in MP.
 
 ## Changelog  
-**06.01.2020**:  
+**[06.01.2020](https://github.com/CreepSore/Hitman2-Hack/tree/7f599a3eb9a8b3849d9e234dd149927d866c85dd)**:  
 ```diff
 + Added Nospread  
 ! Refactored Code  
