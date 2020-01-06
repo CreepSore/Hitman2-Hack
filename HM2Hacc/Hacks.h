@@ -1,21 +1,28 @@
 #pragma once
 #include "Vector.h"
 
-static vec3d* getPosition();
 
-static int currentEntityId = 0;
-static float jumpstep = -1;
-static DWORD64 lastJumpUpdate = 0;
+class Utils {
+public:
+    static vec3d* getPosition();
+};
 
 class Hooks {
 public:
     static void init();
     static void hook();
     static void unhook();
+    static void loop();
 };
 
-class Keybinds {
-public:
-    static void run();
+class Teleport {
+    static double speed;
     static vec3d latestPos;
+public:
+    static void loop();
+};
+
+class Airwalk {
+public:
+    static void loop();
 };

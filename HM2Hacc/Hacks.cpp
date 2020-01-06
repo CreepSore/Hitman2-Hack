@@ -55,7 +55,7 @@ PatchInfo pPhysXNoFalling = PatchInfo("PhysX3CharacterKinematic_x64.dll",
 
 std::vector<PatchInfo*> patches = std::vector<PatchInfo*>();
 
-vec3d* getPosition() {
+vec3d* Utils::getPosition() {
     auto currAddr = PDWORD64(DWORD64(GetModuleHandleA("hitman2.exe")) + 0x2BD6A38);
 
     if (!currAddr || currAddr == nullptr || *currAddr == 0) return nullptr;
@@ -64,6 +64,7 @@ vec3d* getPosition() {
 
     return reinterpret_cast<vec3d*>(*currAddr + 0x218);
 }
+
 
 void Hooks::init()
 {
@@ -95,12 +96,11 @@ void Hooks::unhook() {
     {
         patch->unpatch();
     }
+    pPhysXNoFalling.unpatch();
 }
 
-
-vec3d Keybinds::latestPos = vec3d();
-void Keybinds::run() {
-    if (GetAsyncKeyState(VK_NUMPAD7) & 1)
+void Hooks::loop() {
+    if (GetAsyncKeyState(VK_NUMPAD7) & 0x1)
     {
         if (pFreezeBots.patched) {
             pFreezeBots.unpatch();
@@ -115,7 +115,7 @@ void Keybinds::run() {
         }
     }
 
-    if (GetAsyncKeyState(VK_NUMPAD9) & 1)
+    if (GetAsyncKeyState(VK_NUMPAD9) & 0x1)
     {
         if (pNoBotActions.patched) {
             pNoBotActions.unpatch();
@@ -128,7 +128,7 @@ void Keybinds::run() {
         }
     }
 
-    if (GetAsyncKeyState(VK_NUMPAD1) & 1)
+    if (GetAsyncKeyState(VK_NUMPAD1) & 0x1)
     {
         if (pAntiBotAwareness.patched) {
             pAntiBotAwareness.unpatch();
@@ -141,32 +141,28 @@ void Keybinds::run() {
         }
     }
 
-    vec3d* pos = getPosition();
-    if (!pos || pos == nullptr) return;
-
-    if (GetAsyncKeyState(VK_LMENU)) {
+    if (GetAsyncKeyState(VK_NUMPAD3) & 0x1)
+    {
         if (!pPhysXNoFalling.patched) {
             pPhysXNoFalling.patch();
         }
-        pos->z = Keybinds::latestPos.z + 5;
-        return;
-    }
-    else {
-        if (pPhysXNoFalling.patched)
+        else
         {
             pPhysXNoFalling.unpatch();
-            return;
         }
     }
+}
 
-    if (GetAsyncKeyState(VK_BACK)) {
-        pos->z = Keybinds::latestPos.z - 5;
-        return;
-    }
 
-    if (GetAsyncKeyState(VK_NUMPAD5)) {
+double Teleport::speed = 2;
+vec3d Teleport::latestPos = vec3d();
+void Teleport::loop() {
+    vec3d* pos = Utils::getPosition();
+    if (!pos || pos == nullptr) return;
+
+    // RESET VERTICAL HEIGHT
+    if (GetAsyncKeyState(VK_NUMPAD5) & 0x8000) {
         pos->z = 2;
-        jumpstep = -5;
         return;
     }
 
@@ -190,5 +186,29 @@ void Keybinds::run() {
         return;
     }
 
-    Keybinds::latestPos = *pos;
+    latestPos = *pos;
+}
+
+
+void Airwalk::loop() {
+    vec3d* pos = Utils::getPosition();
+    if (!pos || pos == nullptr) return;
+
+    if (GetAsyncKeyState(VK_LMENU) & 0x8000) {
+        if (!pPhysXNoFalling.patched) {
+            pPhysXNoFalling.patch();
+        }
+
+        pos->z += 0.1;
+        return;
+    }
+
+    if (GetAsyncKeyState(VK_BACK) & 0x8000) {
+        if (!pPhysXNoFalling.patched) {
+            pPhysXNoFalling.patch();
+        }
+
+        pos->z -= 0.1;
+        return;
+    }
 }
