@@ -8,8 +8,7 @@
 ## Changelog  
 **[04.01.2020](https://github.com/CreepSore/Hitman2-Hack/tree/7f1f3fe6a4c086d8c6d9e043e226e3335f3393b5)**:  
 ```diff
-+ Added Bot-Control Hacks (bots now totally ignore any actions done, and also won't get suspicious of the player)  
-+ Added Auto-Pistol  
++ Added Bot-Control Hacks (bots now totally ignore any actions done, and also won't get suspicious of the player)   
 ! While walking in air, the player doesn't bug out anymore 
 ! Added more Keybinds to toggle Hacks 
 ```
