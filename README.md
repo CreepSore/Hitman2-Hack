@@ -5,6 +5,11 @@
 > I'd recommend not doing so, since there's a possibility of getting banned.
 > Currently **every** Module works in MP.
 
+Airwalk does only work on the DX12 version of the Game! There will be a Patch in future updates, so it'll be possible to use it on the DX11 version too!
+
+Look at our [Screenshots](#screenshots)!  
+You can also find the Keybinds below!
+
 ## 📝 Changelog
 **[06.01.2020](https://github.com/CreepSore/Hitman2-Hack/tree/7f599a3eb9a8b3849d9e234dd149927d866c85dd)**:
 ```diff
@@ -68,3 +73,19 @@
   - Decrease vertical Level
 
 ----
+
+# Screenshots
+### Console
+![Console](https://github.com/CreepSore/Hitman2-Hack/blob/master/.github/MEDIA/console_window.png)
+
+### Airwalk
+![Airwalk](https://github.com/CreepSore/Hitman2-Hack/blob/master/.github/MEDIA/airwalk.png)
+![Airwalk](https://github.com/CreepSore/Hitman2-Hack/blob/master/.github/MEDIA/airwalk2.png)
+
+### Freezed Bots
+![Freezed Bots](https://github.com/CreepSore/Hitman2-Hack/blob/master/.github/MEDIA/freezed_bots.png)
+![Freezed Bots](https://github.com/CreepSore/Hitman2-Hack/blob/master/.github/MEDIA/freezed_bots2.png)
+![Freezed Bots](https://github.com/CreepSore/Hitman2-Hack/blob/master/.github/MEDIA/freezed_bots3.png)
+
+### No-Spread
+![No Spread](https://github.com/CreepSore/Hitman2-Hack/blob/master/.github/MEDIA/nospread.gif)
