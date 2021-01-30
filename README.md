@@ -1,8 +1,6 @@
 # HACKMAN 2.0
 > internal C++ HITMAN 2 Hack
 
-[![ ](https://ci.ehdes.com/api/buildresults/shield/workspace/latest/Win-VM/Hitman2)](https://ci.ehdes.com/jobdetails/workspace/latest/Hitman2)
-
 ### 👥 This Hack is also usable in Multiplayer
 > I'd recommend not doing so, since there's a possibility of getting banned.
 > Currently **every** Module works in MP.
